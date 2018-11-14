@@ -183,10 +183,20 @@ const guideData = [{
     }]
 }];
 
+function buildMenuButton() {
+    buildMenu(guideData);
+    const buttonHtml = '<a id="guide-me" class="btn btn-secondary btn-sm">Guide Me</a>';
+    $('.feedback-buttons').append(buttonHtml);
+    $('#guide-me').click(function() {
+        console.info("Guide me clicked");
+            $('#gh-menu').show();
+    });
+}
+
 function buildMenu(guideData) {
     if ($('#gh-menu').length == 0) {
         let menuHtml = '<div id="gh-menu" class="gh-center gh-box-shadow gh-border-style dismissable" style="display:none;"><ul id="gh-menu-list"></ul></div>';
-        document.body.innerHTML += menuHtml;
+        $('#gbclient').append(menuHtml);
     }
     for (let key in guideData) {
         if (guideData[key].guideMenuUrls == '*' || window.location.href.indexOf(guideData[key].guideMenuUrls) > -1) {
@@ -194,7 +204,7 @@ function buildMenu(guideData) {
                 let elementId = '#guide-id-' + guideData[key].guideId;
                 $('#gh-menu-list').append('<li menu-order="' + guideData[key].guideMenuOrder + '" id="guide-id-' + guideData[key].guideId + '" class="gh-menu-item">' + guideData[key].guideTitle + '</li>');
                 $(elementId).on('click', function() {
-                    $('#gh-menu').hide();
+                    $('#gh-menu').hide(); //
                     console.info("Play guide: " + guideData[key].guideTitle);
                 });
             }
@@ -285,5 +295,7 @@ function popupBox(id, msg, direction, buttons, dismissable) { // Create a modal 
     return true;
 }
 $(document).ready(function () {
-        buildMenu(guideData);
+    const minifiedCss = '<style>.gh-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}.gh-box-shadow{-webkit-box-shadow:0 0 5px 0 rgba(0,0,0,.75);-moz-box-shadow:0 0 5px 0 rgba(0,0,0,.75);box-shadow:0 0 5px 0 rgba(0,0,0,.75)}.gh-border-style{border-radius:2px;border:1px solid}.gh-box-style{padding:5px;margin:0 auto}#gh-dismiss:hover,.gh-menu-item:hover{cursor:pointer}.heightlighted{border:4px solid #00ff5a}.container:after,.container:before{content:\'\';display:block;position:absolute;left:100%;width:0;height:0;border-style:solid}.container:after{top:10px;border-color:transparent transparent transparent #fdd;border-width:10px}.container:before{top:9px;border-color:transparent transparent transparent #a00;border-width:11px}</style>';
+    $('#gbclient').append(minifiedCss);
+    buildMenuButton();
 });
