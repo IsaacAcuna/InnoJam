@@ -1,5 +1,187 @@
 "use strict";
 
+const guideData = [{
+    guideId: 1, // Arbitrary unique ID
+    guideTitle: 'Login to Portal', // Name for the guide in the menu
+    guideUrl: '*', // Only display this guide if the page URL contains
+    guideOrder: 1, // Order in the menu
+    guideGoals: [{ // Any number of goals or "milestones" we may want to include
+        guideGoal: {
+            goalTitle: 'Customer does a thing',
+            goalSelector: '.selector',
+            goalAction: 'click'
+        }
+    }, {
+        guideGoal: {
+            goalTitle: 'Customer finished a thing',
+            goalSelector: '#thing',
+            goalAction: 'hover'
+        }
+    }],
+    guideSteps: [{
+        guideStep: {
+            stepPlayOrder: 1,
+            stepTitle: 'Click here', // Header shown in the popup box
+            stepMsg: 'Input your email address here.', // Content of the message box
+            stepSelector: '.input', // Selector that the box points to
+            stepAction: 'keyup', // Action that will automatically proceed the walkthrough.
+            stepDismissable: 0, // If this action can be dismissed by clicking elsewhere/abandoning the guide
+            stepDirection: 'down', // Desired location of the popup box
+            stepButtons: [{ // Optional buttons (If no buttons declared stepAction on stepSelector will be the only way to proceed.)
+                stepButton: {
+                    buttonType: 'link', // Button will link to another page
+                    buttonText: 'More Information', // Text of the button
+                    buttonHref: 'https://www.hostgator.com/help', // URL the button will point to
+                    buttonDismisses: 0, // Should the guide be ended if this button is clicked
+                    buttonNewTab: 1, // Should we attempt to open the link in a new tab/window.
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep', // Move forward in the guide
+                    buttonText: 'Next', // text of the button
+                }
+            }]
+        }
+    }, {
+        guideStep: {
+            stepPlayOrder: 2,
+            stepTitle: 'Click here',
+            stepMsg: 'Input your password here.',
+            stepSelector: '.input',
+            stepAction: 'keyup',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }, {
+        guideStep: {
+            stepPlayOrder: 3,
+            stepTitle: 'Click here',
+            stepMsg: 'Click here to login.',
+            stepSelector: '.button',
+            stepAction: 'click',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }];
+}, {
+    guideId: 2,
+    guideTitle: 'Create an email account',
+    guideGoals: [{
+        guideGoal: {
+            goalTitle: 'Customer does a thing',
+            goalSelector: '.selector',
+            goalAction: 'click'
+        }
+    }, {
+        guideGoal: {
+            goalTitle: 'Customer finished a thing',
+            goalSelector: '#thing',
+            goalAction: 'hover'
+        }
+    }],
+    guideSteps: [{
+        guideStep: {
+            stepPlayOrder: 1,
+            stepTitle: 'Click here',
+            stepMsg: 'click this thing.',
+            stepSelector: '.selector',
+            stepAction: 'click',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }, {
+        guideStep: {
+            stepPlayOrder: 2,
+            stepTitle: 'Click here',
+            stepMsg: 'Input your password here.',
+            stepSelector: '.input',
+            stepAction: 'keyup',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }, {
+        guideStep: {
+            stepPlayOrder: 3,
+            stepTitle: 'Click here',
+            stepMsg: 'Click here to login.',
+            stepSelector: '.button',
+            stepAction: 'click',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }];
+}];
+
 function Player(name) { // Player constructor
     this.name = name;
     this.time = 0;
