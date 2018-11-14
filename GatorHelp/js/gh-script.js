@@ -1,10 +1,9 @@
 "use strict";
-
 const guideData = [{
-    guideId: 1, // Arbitrary unique ID
+    guideId: 0, // Arbitrary unique ID
     guideTitle: 'Login to Portal', // Name for the guide in the menu
-    guideUrl: '*', // Only display this guide if the page URL contains
-    guideOrder: 1, // Order in the menu
+    guideMenuUrls: '*', // Only display this guide if the page URL contains string, '*' == all pages.
+    guideMenuOrder: 1, // Order in the menu
     guideGoals: [{ // Any number of goals or "milestones" we may want to include
         guideGoal: {
             goalTitle: 'Customer does a thing',
@@ -90,10 +89,12 @@ const guideData = [{
                 }
             }]
         }
-    }];
+    }]
 }, {
-    guideId: 2,
+    guideId: 1,
     guideTitle: 'Create an email account',
+    guideMenuUrls: '*', // Only display this guide if the page URL contains
+    guideMenuOrder: 2, // Order in the menu
     guideGoals: [{
         guideGoal: {
             goalTitle: 'Customer does a thing',
@@ -179,55 +180,49 @@ const guideData = [{
                 }
             }]
         }
-    }];
+    }]
 }];
 
-function Player(name) { // Player constructor
-    this.name = name;
-    this.time = 0;
-    this.matchCount = 0;
-    this.flipCount = 0;
-    this.playerRatio = 0;
-    this.timeBonus = [];
-    this.points = [];
-}
-Player.prototype = { // Player methods
-    constructor: Player,
-    addTime: function(time) {
-        this.timeBonus.push(time);
-    },
-    addPoints: function(pointsAddition) {
-        this.points.push(pointsAddition);
-    },
-    getEffects: function() {
-        let bonus = this.timeBonus.length > 0 ? this.timeBonus.join(',') :
-            'No bonuses';
-        return bonus;
-    },
-    getPoints: function() {
-        let points = this.points.length > 0 ? this.points.join(',') :
-            'No points';
-        return points;
-    },
-    getTime: function() {
-        return this.time;
-    },
-    getRatio: function() {
-        return this.playerRatio;
-    },
-    getFlips: function() {
-        return this.flipCount;
+function buildMenu(guideData) {
+    if ($('#gh-menu').length == 0) {
+        let menuHtml = '<div id="gh-menu" class="gh-center gh-box-shadow gh-border-style dismissable" style="display:none;"><ul id="gh-menu-list"></ul></div>';
+        document.body.innerHTML += menuHtml;
     }
-};
+    for (let key in guideData) {
+        if (guideData[key].guideMenuUrls == '*' || window.location.href.indexOf(guideData[key].guideMenuUrls) > -1) {
+            if ($('guide-id-' + guideData[key].guideId).length == 0) {
+                let elementId = '#guide-id-' + guideData[key].guideId;
+                $('#gh-menu-list').append('<li menu-order="' + guideData[key].guideMenuOrder + '" id="guide-id-' + guideData[key].guideId + '" class="gh-menu-item">' + guideData[key].guideTitle + '</li>');
+                $(elementId).on('click', function() {
+                    $('#gh-menu').hide();
+                    console.info("Play guide: " + guideData[key].guideTitle);
+                });
+            }
+        }
+    }
+}
 
-function getUserData() { 
+function playGuide(guideId) {
+    let guide;
+    let existing_cookie = getCookie('gh-guide-' + guideId);
+    if (existing_cookie) {
+        console.info('resume guide');
+    }
+    else {
+        console.info('play guide');
+    }
+    return guide;
+}
+
+function getCookie(cookieName) {
     if (!navigator.cookieEnabled) {
+        console.info('Cookies required');
         return false;
     }
-    const cookieName = "GatorHelper=";
+    let cookieName = cookieName + '=';
     const cookies = document.cookie.split(';');
     let cookie;
-    for (let i = 0; i < cookies.length; i++) { 
+    for (let i = 0; i < cookies.length; i++) {
         let result = cookies[i].startsWith(cookieName);
         if (result) {
             cookie = cookies[i];
@@ -240,46 +235,55 @@ function getUserData() {
     return false;
 }
 
-function setUserData(userObj) { 
+function setCookie(Obj, cookieName) {
     if (!navigator.cookieEnabled) {
+        console.info('Cookies required');
         return false;
     }
-    let userPayload = JSON.stringify(userObj);
+    if (!cookieName) {
+        console.info('cookieName is required');
+        return false;
+    }
+    let userPayload = JSON.stringify(Obj);
     if (userPayload) {
         let expiration = new Date();
         expiration.setDate(expiration.getDate() + 30);
-        document.cookie = 'GatorHelper=' + userPayload + '; expires=' +
-            expiration.toUTCString() + '; path=/';
+        document.cookie = cookieName + '=' + userPayload + '; expires=' + expiration.toUTCString() + '; path=/';
         return true;
     }
     return false;
 }
 
-function expireCookie() {
+function expireCookie(cookieName) {
     if (!navigator.cookieEnabled) {
+        console.info('Cookies required');
         return false;
     }
-    document.cookie = 'GatorHelper=; Path=/; Max-Age=-99999999;';
+    if (!cookieName) {
+        console.info('cookieName is required');
+        return false;
+    }
+    document.cookie = cookieName + '=; Path=/; Max-Age=-99999999;';
     return true;
 }
 
-function popUp(id, msg, dismissable = 1) { // Create a modal with content, that may be dismissable.
-    if ( id == undefined || msg == undefined ) {
-        console.info('id/msg are required parameters');
+function popupBox(id, msg, direction, buttons, dismissable) { // Create a modal with content, that may be dismissable.
+    if (id == undefined || msg == undefined) {
+        console.info('id and msg are required parameters');
         return false;
     }
-
-    const interstitial = '<div id="box-' + id + '" class=".gh-cntr"><div id="header-'+id+'">Gator Helper Notice <span id="dismiss-msg">x</span></div></div>
-    const ourMsg  = document.getElementById('box-' + id);
-          
+    const interstitial = '<div id="box-' + id + '" class="gh-center gh-box-shadow gh-border-style dismissable"><div id="header-' + id + '">Gator Helper Notice <span id="dismiss-msg">x</span></div></div>';
+    const ourMsg = document.getElementById('box-' + id);
     ourMsg.innerText = msg;
     modal.style.display = 'block';
     if (dismissable !== undefined) { // If we need to create a listener for a dismissal button.
         const dismissal = document.getElementById('dismiss-modal');
-        dismissal.onclick = function() {
-            $("box-" + id ).remove();
+        dismissal.onclick = function () {
+            $("box-" + id).remove();
         };
     }
     return true;
 }
-
+$(document).ready(function () {
+        buildMenu(guideData);
+});
