@@ -1,3 +1,15 @@
+.gh-popup {
+    position:absolute;
+    display:flex;
+    flex-direction: column;
+    border: 1px solid #000;
+    border-radius: 2px;
+    padding: 5px;
+    -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,.75);
+    -moz-box-shadow: 0 0 5px 0 rgba(0,0,0,.75);
+    box-shadow: 0 0 5px 0 rgba(0,0,0,.75);
+    max-width: 300px;*/
+}
 .gh-center {
     position: fixed;
     top: 50%;
@@ -24,33 +36,256 @@
 
 .gh-menu-item:hover {
     cursor: pointer;
+    font-weight: bolder;
 }
 
 .heightlighted {
     border: 4px solid #00ff5a;
 }
 
-.container:after,
-.container:before {
-    content: '';
-    display: block;
+.gh-dismiss {
     position: absolute;
-    left: 100%;
-    width: 0;
-    height: 0;
-    border-style: solid;
+    right: 0px;
+    top: 0px;
+    float: right;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 0.1rem 0 #fff;
+    opacity: .5;
 }
 
-/* this border color controlls the color of the triangle (what looks like the fill of the triangle) */
-.container:after {
-    top: 10px;
-    border-color: transparent transparent transparent #fdd;
-    border-width: 10px;
+#gh-menu-header {
+    display: block;
+    width: 100%;
+    padding: 0;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #666;
+    text-align: left;
+    border: 0;
+    text-align: center;
+    border-bottom: 1px solid #666;
 }
 
-/* this border color controlls the outside, thin border */
-.container:before {
-    top: 9px;
-    border-color: transparent transparent transparent #a00;
-    border-width: 11px;
+#gh-menu {
+    width: 400px;
+    min-height: 300px;
+    background: #FFF;
+    padding: 10px;
+    color: #4077b5;
+}
+
+#gh-menu-list {
+    padding: 10px;
+}
+
+#guide-me {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    min-width: 10rem;
+    background-color: #4077b5;
+    box-sizing: inherit;
+    display: inline-block;
+    min-height: 2.4rem;
+    padding: .3rem 1.3rem;
+    font-family: 400 1.3rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-weight: 500;
+    line-height: 2.4rem;
+    vertical-align: middle;
+    border: solid .1rem transparent;
+    border-radius: .2rem;
+    outline: 0;
+    -o-transition: all .1s ease;
+    transition: all .1s ease;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+    font-size: 1.2rem;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    height: 100%;
+}
+
+.gh-button {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    background-color: #4077b5;
+    box-sizing: inherit;
+    display: inline-block;
+    font-family: 400 1.3rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-weight: 500;
+    border: solid .1rem transparent;
+    border-radius: .2rem;
+    outline: 0;
+    -o-transition: all .1s ease;
+    position: relative;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding: 2px 6px 4px 6px;
+}
+
+.gh-button:hover {
+ background-color: #3a679d;
+}
+
+#guide-me:hover {
+ background-color: #3a679d;
+}
+
+// Upward pointing arrow
+
+.up_box {
+	position: relative;
+	background: #ffffff;
+	border: 1px solid #000000;
+}
+.up_box:after, .up_box:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.up_box:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-bottom-color: #ffffff;
+	border-width: 10px;
+	margin-left: -10px;
+}
+.up_box:before {
+	border-color: rgba(0, 0, 0, 0);
+	border-bottom-color: #000000;
+	border-width: 11px;
+	margin-left: -11px;
+}
+
+// Downward pointing arrow
+
+.down_box {
+	position: relative;
+	background: #ffffff;
+	border: 1px solid #000000;
+}
+.down_box:after, .down_box:before {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.down_box:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-top-color: #ffffff;
+	border-width: 10px;
+	margin-left: -10px;
+}
+.down_box:before {
+	border-color: rgba(0, 0, 0, 0);
+	border-top-color: #000000;
+	border-width: 11px;
+	margin-left: -11px;
+}
+
+// Right pointing arrow
+
+.right_box {
+	position: relative;
+	background: #ffffff;
+	border: 1px solid #000000;
+}
+.right_box:after, .right_box:before {
+	left: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.right_box:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-left-color: #ffffff;
+	border-width: 10px;
+	margin-top: -10px;
+}
+.right_box:before {
+	border-color: rgba(0, 0, 0, 0);
+	border-left-color: #000000;
+	border-width: 11px;
+	margin-top: -11px;
+}
+
+// Left pointing arrow
+
+.left_box {
+	position: relative;
+	background: #ffffff;
+	border: 1px solid #000000;
+}
+.left_box:after, .left_box:before {
+	right: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.left_box:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-right-color: #ffffff;
+	border-width: 10px;
+	margin-top: -10px;
+}
+.left_box:before {
+	border-color: rgba(0, 0, 0, 0);
+	border-right-color: #000000;
+	border-width: 11px;
+	margin-top: -11px;
+}
+
+#guide-buttons {
+    flex-direction: row;
+    align-self: flex-end;
+    padding: 5px 2px 2px 2px;
+}
+.box-header {
+    flex-direction: row;
+    font-weight: bold;
+}
+
+.box-dismiss {
+    position: absolute;
+    right: 3px;
+    top: -2px;
+    float: right;
+    line-height: 1;
+    color: #000;
+    font-family: sans-serif;
+    font-size: small;
+    font-weight: 300;
+}
+.guide-msg {
+    font-size: small;
 }

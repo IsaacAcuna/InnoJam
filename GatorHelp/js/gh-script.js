@@ -2,7 +2,8 @@
 const guideData = [{
     guideId: 0, // Arbitrary unique ID
     guideTitle: 'Login to Portal', // Name for the guide in the menu
-    guideMenuUrls: '*', // Only display this guide if the page URL contains string, '*' == all pages.
+    guideUrlContains: 'login', // Only display this guide if the page URL contains string, '*' == all pages.
+    guideUrlNotContains: '*', // Display this guide if the url does NOT contain string, '*' == no filter
     guideMenuOrder: 1, // Order in the menu
     guideGoals: [{ // Any number of goals or "milestones" we may want to include
         guideGoal: {
@@ -93,7 +94,100 @@ const guideData = [{
 }, {
     guideId: 1,
     guideTitle: 'Create an email account',
-    guideMenuUrls: '*', // Only display this guide if the page URL contains
+    guideUrlContains: '*', // Only display this guide if the page URL contains string, '*' == no filter
+    guideUrlNotContains: '*', // Display this guide if the url does NOT contain string, '*' == no filter
+    guideMenuOrder: 2, // Order in the menu
+    guideGoals: [{
+        guideGoal: {
+            goalTitle: 'Customer does a thing',
+            goalSelector: '.selector',
+            goalAction: 'click'
+        }
+    }, {
+        guideGoal: {
+            goalTitle: 'Customer finished a thing',
+            goalSelector: '#thing',
+            goalAction: 'hover'
+        }
+    }],
+    guideSteps: [{
+        guideStep: {
+            stepPlayOrder: 1,
+            stepTitle: 'Click here',
+            stepMsg: 'click this thing.',
+            stepSelector: '.selector',
+            stepAction: 'click',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }, {
+        guideStep: {
+            stepPlayOrder: 2,
+            stepTitle: 'Click here',
+            stepMsg: 'Input your password here.',
+            stepSelector: '.input',
+            stepAction: 'keyup',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }, {
+        guideStep: {
+            stepPlayOrder: 3,
+            stepTitle: 'Click here',
+            stepMsg: 'Click here to login.',
+            stepSelector: '.button',
+            stepAction: 'click',
+            stepDismissable: 0,
+            stepDirection: 'down',
+            stepButtons: [{
+                stepButton: {
+                    buttonType: 'standard',
+                    buttonText: 'More Information',
+                    buttonHref: 'https://www.hostgator.com/help',
+                    buttonDismisses: 0,
+                    buttonNewTab: 1,
+                }
+            }, {
+                stepButton: {
+                    buttonType: 'playNextStep',
+                    buttonText: 'Next',
+                }
+            }]
+        }
+    }]
+}, {
+    guideId: 1,
+    guideTitle: 'Install WordPress',
+    guideUrlContains: '*', // Only display this guide if the page URL contains string, '*' == no filter
+    guideUrlNotContains: '*', // Display this guide if the url does NOT contain string, '*' == no filter
     guideMenuOrder: 2, // Order in the menu
     guideGoals: [{
         guideGoal: {
@@ -185,28 +279,28 @@ const guideData = [{
 
 function buildMenuButton() {
     buildMenu(guideData);
-    const buttonHtml = '<a id="guide-me" class="btn btn-secondary btn-sm">Guide Me</a>';
+    const buttonHtml = '<a id="guide-me">Guide Me</a>';
     $('.feedback-buttons').append(buttonHtml);
-    $('#guide-me').click(function() {
-        console.info("Guide me clicked");
-            $('#gh-menu').show();
-    });
 }
 
 function buildMenu(guideData) {
     if ($('#gh-menu').length == 0) {
-        let menuHtml = '<div id="gh-menu" class="gh-center gh-box-shadow gh-border-style dismissable" style="display:none;"><ul id="gh-menu-list"></ul></div>';
+        let menuHtml = '<div id="gh-menu" class="gh-center gh-box-shadow gh-border-style dismissable" style="display:none;"><div id="gh-menu-header">GatorGuide - Learn how to... <button type="button" class="gh-dismiss" aria-label="Close">×</button></div><ul id="gh-menu-list"></ul></div>';
         $('#gbclient').append(menuHtml);
     }
     for (let key in guideData) {
-        if (guideData[key].guideMenuUrls == '*' || window.location.href.indexOf(guideData[key].guideMenuUrls) > -1) {
-            if ($('guide-id-' + guideData[key].guideId).length == 0) {
-                let elementId = '#guide-id-' + guideData[key].guideId;
-                $('#gh-menu-list').append('<li menu-order="' + guideData[key].guideMenuOrder + '" id="guide-id-' + guideData[key].guideId + '" class="gh-menu-item">' + guideData[key].guideTitle + '</li>');
-                $(elementId).on('click', function() {
-                    $('#gh-menu').hide(); //
-                    console.info("Play guide: " + guideData[key].guideTitle);
-                });
+        if (guideData[key].guideUrlContains == '*' || window.location.href.indexOf(guideData[key].guideUrlContains) > -1 ) {
+            if ( guideData[key].guideUrlNotContains == '*' || window.location.href.indexOf(guideData[key].guideUrlNotContains) == -1 ) {
+                if ($('guide-id-' + guideData[key].guideId).length == 0) {
+                    let elementId = '#guide-id-' + guideData[key].guideId;
+                    $('#gh-menu-list').append('<li menu-order="' + guideData[key].guideMenuOrder + '" id="guide-id-' + guideData[key].guideId + '" class="gh-menu-item">' + guideData[key].guideTitle + '</li>');
+                    $(elementId).on('click', function() {
+                        $('#gh-menu').hide();
+                        $('#guide-me').removeClass('disabled processing');
+                        console.info("Play guide: " + guideData[key].guideTitle);
+                        playGuide(guideData[key].guideId);
+                    });
+                }
             }
         }
     }
@@ -222,6 +316,10 @@ function playGuide(guideId) {
         console.info('play guide');
     }
     return guide;
+}
+
+function Player(guide) {
+    
 }
 
 function getCookie(cookieName) {
@@ -277,7 +375,7 @@ function expireCookie(cookieName) {
     return true;
 }
 
-function popupBox(id, msg, direction, buttons, dismissable) { // Create a modal with content, that may be dismissable.
+function popupBox(guideId, stepMsg, stepDirection, stepButtons, stepDismissable) { // Create a modal with content, that may be dismissable.
     if (id == undefined || msg == undefined) {
         console.info('id and msg are required parameters');
         return false;
@@ -294,8 +392,18 @@ function popupBox(id, msg, direction, buttons, dismissable) { // Create a modal 
     }
     return true;
 }
+
 $(document).ready(function () {
-    const minifiedCss = '<style>.gh-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}.gh-box-shadow{-webkit-box-shadow:0 0 5px 0 rgba(0,0,0,.75);-moz-box-shadow:0 0 5px 0 rgba(0,0,0,.75);box-shadow:0 0 5px 0 rgba(0,0,0,.75)}.gh-border-style{border-radius:2px;border:1px solid}.gh-box-style{padding:5px;margin:0 auto}#gh-dismiss:hover,.gh-menu-item:hover{cursor:pointer}.heightlighted{border:4px solid #00ff5a}.container:after,.container:before{content:\'\';display:block;position:absolute;left:100%;width:0;height:0;border-style:solid}.container:after{top:10px;border-color:transparent transparent transparent #fdd;border-width:10px}.container:before{top:9px;border-color:transparent transparent transparent #a00;border-width:11px}</style>';
+    const minifiedCss = '<style>#gh-dismiss:hover,#guide-me{cursor:pointer}.gh-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}.gh-box-shadow{-webkit-box-shadow:0 0 5px 0 rgba(0,0,0,.75);-moz-box-shadow:0 0 5px 0 rgba(0,0,0,.75);box-shadow:0 0 5px 0 rgba(0,0,0,.75)}.gh-border-style{border-radius:2px;border:1px solid}.gh-box-style{padding:5px;margin:0 auto}#gh-menu,#gh-menu-list{padding:10px}.gh-menu-item:hover{cursor:pointer;font-weight:bolder}.heightlighted{border:4px solid #00ff5a}.container:after,.container:before{content:\'\';display:block;position:absolute;left:100%;width:0;height:0;border-style:solid}.container:after{top:10px;border-color:transparent transparent transparent #fdd;border-width:10px}.container:before{top:9px;border-color:transparent transparent transparent #a00;border-width:11px}.gh-dismiss{position:absolute;right:1px;top:1px;float:right;font-size:2.4rem;font-weight:700;line-height:1;color:#000;text-shadow:0 .1rem 0 #fff;opacity:.5}#gh-menu-header{display:block;width:100%;padding:0;font-size:1.6rem;font-weight:900;color:#666;border:0;text-align:center;border-bottom:1px solid #666}#gh-menu{width:400px;min-height:300px;background:#FFF;color:#4077b5}#guide-me{min-width:10rem;background-color:#4077b5;box-sizing:inherit;display:inline-block;min-height:2.4rem;padding:.3rem 1.3rem;font-family:400 1.3rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";font-weight:500;line-height:2.4rem;vertical-align:middle;border:.1rem solid transparent;border-radius:.2rem;outline:0;-o-transition:all .1s ease;transition:all .1s ease;position:relative;z-index:0;overflow:hidden;font-size:1.2rem;color:#fff;text-align:center;text-decoration:none;-moz-user-select:none;-ms-user-select:none;user-select:none;height:100%}#guide-me:hover{background-color:#3a679d}</style>';
     $('#gbclient').append(minifiedCss);
     buildMenuButton();
+    
+    $('#guide-me').click(function() {
+        console.info("Guide me clicked");
+        $('#gh-menu').show();
+    });
+    $('.gh-dismiss').click(function() {
+        $('#gh-menu').hide();
+        $('#guide-me').removeClass('disabled processing');
+    })
 });
