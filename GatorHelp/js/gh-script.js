@@ -7,12 +7,14 @@ const guideData = [{
     guideMenuOrder: 1, // Order in the menu
     guideGoals: [{ // Any number of goals or "milestones" we may want to include
         guideGoal: {
+            goalId: 0, // Unique identifier per goal per guide
             goalTitle: 'Customer does a thing',
             goalSelector: '.selector',
             goalAction: 'click'
         }
     }, {
         guideGoal: {
+            goalId: 1,
             goalTitle: 'Customer finished a thing',
             goalSelector: '#thing',
             goalAction: 'hover'
@@ -20,6 +22,7 @@ const guideData = [{
     }],
     guideSteps: [{
         guideStep: {
+            stepId: 0, // Unique identifier per step  per guide 
             stepPlayOrder: 1,
             stepTitle: 'Click here', // Header shown in the popup box
             stepMsg: 'Input your email address here.', // Content of the message box
@@ -44,6 +47,7 @@ const guideData = [{
         }
     }, {
         guideStep: {
+            stepId: 1,
             stepPlayOrder: 2,
             stepTitle: 'Click here',
             stepMsg: 'Input your password here.',
@@ -68,6 +72,7 @@ const guideData = [{
         }
     }, {
         guideStep: {
+            stepId: 2,
             stepPlayOrder: 3,
             stepTitle: 'Click here',
             stepMsg: 'Click here to login.',
@@ -99,12 +104,14 @@ const guideData = [{
     guideMenuOrder: 2, // Order in the menu
     guideGoals: [{
         guideGoal: {
+            goalId: 0,
             goalTitle: 'Customer does a thing',
             goalSelector: '.selector',
             goalAction: 'click'
         }
     }, {
         guideGoal: {
+            goalId: 1,
             goalTitle: 'Customer finished a thing',
             goalSelector: '#thing',
             goalAction: 'hover'
@@ -112,6 +119,7 @@ const guideData = [{
     }],
     guideSteps: [{
         guideStep: {
+            stepId: 0,
             stepPlayOrder: 1,
             stepTitle: 'Click here',
             stepMsg: 'click this thing.',
@@ -136,6 +144,7 @@ const guideData = [{
         }
     }, {
         guideStep: {
+            stepId: 1,
             stepPlayOrder: 2,
             stepTitle: 'Click here',
             stepMsg: 'Input your password here.',
@@ -160,6 +169,7 @@ const guideData = [{
         }
     }, {
         guideStep: {
+            stepId: 2,
             stepPlayOrder: 3,
             stepTitle: 'Click here',
             stepMsg: 'Click here to login.',
@@ -184,19 +194,21 @@ const guideData = [{
         }
     }]
 }, {
-    guideId: 1,
+    guideId: 2,
     guideTitle: 'Install WordPress',
     guideUrlContains: '*', // Only display this guide if the page URL contains string, '*' == no filter
     guideUrlNotContains: '*', // Display this guide if the url does NOT contain string, '*' == no filter
     guideMenuOrder: 2, // Order in the menu
     guideGoals: [{
         guideGoal: {
+            goalId: 0,
             goalTitle: 'Customer does a thing',
             goalSelector: '.selector',
             goalAction: 'click'
         }
     }, {
         guideGoal: {
+            goalId: 1,
             goalTitle: 'Customer finished a thing',
             goalSelector: '#thing',
             goalAction: 'hover'
@@ -204,6 +216,7 @@ const guideData = [{
     }],
     guideSteps: [{
         guideStep: {
+            stepId: 0,
             stepPlayOrder: 1,
             stepTitle: 'Click here',
             stepMsg: 'click this thing.',
@@ -228,6 +241,7 @@ const guideData = [{
         }
     }, {
         guideStep: {
+            stepId: 1,
             stepPlayOrder: 2,
             stepTitle: 'Click here',
             stepMsg: 'Input your password here.',
@@ -252,6 +266,7 @@ const guideData = [{
         }
     }, {
         guideStep: {
+            stepId: 2,
             stepPlayOrder: 3,
             stepTitle: 'Click here',
             stepMsg: 'Click here to login.',
@@ -277,13 +292,64 @@ const guideData = [{
     }]
 }];
 
+function Guide() {
+  this.id;
+  this.title;
+  this.urlContains; // Only display this guide if the page URL contains string, '*' == no filter
+  this.urlNotContains; // Display this guide if the url does NOT contain string, '*' == no filter
+  this.menuOrder; // Order in the menu
+  this.goals = [];
+  this.steps = [];
+  this.playedSteps = [];
+  this.completedGoals = [];
+}
+
+Guide.prototype = { // Player methods
+    constructor: Guide,
+    playedStep: function(stepId) {
+        this.playedSteps.push(stepPlayOrder);
+    },
+    goalCompleted: function(goalId) {
+        this.points.push(pointsAddition);
+    },
+    getGoals: function() {
+        let allGoals;
+        if ( this.goals.length > 0 ) {
+            allGoals = this.goals;
+        } 
+        else {
+            console.info("No goals configured for guide ID: " + this.id);
+            return false;
+        }
+        return allGoals;
+    },
+    getSteps: function() {
+        let totalSteps;
+        if ( this.steps.length > 0 ) {
+            totalSteps = this.steps;
+        } 
+        else {
+            console.info("No steps configured for guide ID: " + this.id);
+            return false;
+        }
+        return totalSteps;
+    },
+    getGoal: function() {
+        
+        return this.time;
+    },
+    getStep: function() {
+        return this.playerRatio;
+    },
+};
+
 function buildMenuButton() {
     buildMenu(guideData);
     const buttonHtml = '<a id="guide-me">Guide Me</a>';
     $('.feedback-buttons').append(buttonHtml);
 }
 
-function buildMenu(guideData) {
+function buildMenu(GuideObj) {
     if ($('#gh-menu').length == 0) {
         let menuHtml = '<div id="gh-menu" class="gh-center gh-box-shadow gh-border-style dismissable" style="display:none;"><div id="gh-menu-header">GatorGuide - Learn how to... <button type="button" class="gh-dismiss" aria-label="Close">×</button></div><ul id="gh-menu-list"></ul></div>';
         $('#gbclient').append(menuHtml);
@@ -375,11 +441,40 @@ function expireCookie(cookieName) {
     return true;
 }
 
-function popupBox(guideId, stepMsg, stepDirection, stepButtons, stepDismissable) { // Create a modal with content, that may be dismissable.
-    if (id == undefined || msg == undefined) {
+function popupBox(guideId, stepOrder, stepTitle, stepMsg, stepSelector, stepAction, stepDirection, stepButtons, stepDismissable) {
+    if (guideId == undefined || stepMsg == undefined) {
         console.info('id and msg are required parameters');
         return false;
     }
+    if ( stepButtons == undefined ) {
+        $(document).on('change', stepSelector, function() {
+           playNextStep(guideId, stepPlayOrder); 
+        });
+    }
+    let box_direction;
+    
+    if ( stepDirection ) {
+        switch (stepDirection) {
+    case up:
+        box_direction = "up_box";
+        break;
+    case down:
+        box_direction = "down_box";
+        break;
+    case left:
+        box_direction = "left_box";
+        break;
+    case right:
+        box_direction = "right_box";
+        break;
+} 
+else {
+    box_direction = "up_box";
+}
+    }
+    const popupContent = '<div id="guide-'+ guideId +'-' + stepOrder + '" class="gh-popup '+ box_direction +'"><div class="gh-padding box-header"><div id="guide-title">' +  + '</div><div class="box-dismiss">x</div></div><div class="gh-padding guide-msg">'++'</div><div class="guide-buttons">'++'</div></div>';
+    
+    
     const interstitial = '<div id="box-' + id + '" class="gh-center gh-box-shadow gh-border-style dismissable"><div id="header-' + id + '">Gator Helper Notice <span id="dismiss-msg">x</span></div></div>';
     const ourMsg = document.getElementById('box-' + id);
     ourMsg.innerText = msg;

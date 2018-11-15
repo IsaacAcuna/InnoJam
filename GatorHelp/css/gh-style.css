@@ -30,10 +30,6 @@
     margin: 0 auto;
 }
 
-#gh-dismiss:hover {
-    cursor: pointer;
-}
-
 .gh-menu-item:hover {
     cursor: pointer;
     font-weight: bolder;
@@ -54,6 +50,10 @@
     color: #000;
     text-shadow: 0 0.1rem 0 #fff;
     opacity: .5;
+}
+
+.gh-dismiss:hover {
+    cursor: pointer;
 }
 
 #gh-menu-header {
@@ -258,6 +258,7 @@
 	border-width: 10px;
 	margin-top: -10px;
 }
+
 .left_box:before {
 	border-color: rgba(0, 0, 0, 0);
 	border-right-color: #000000;
@@ -265,11 +266,12 @@
 	margin-top: -11px;
 }
 
-#guide-buttons {
+.guide-buttons {
     flex-direction: row;
     align-self: flex-end;
     padding: 5px 2px 2px 2px;
 }
+
 .box-header {
     flex-direction: row;
     font-weight: bold;
@@ -286,6 +288,11 @@
     font-size: small;
     font-weight: 300;
 }
+
+.box-dismiss:hover {
+    cursor: pointer;
+}
+
 .guide-msg {
     font-size: small;
 }
