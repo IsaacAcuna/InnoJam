@@ -292,55 +292,112 @@ const guideData = [{
     }]
 }];
 
+function makeGuides(guideData) {
+    let guides = [];
+    for (let key in guideData) {
+        guides[key] = new Guide()
+        guides[key].id = guideData[key].guideId;
+        guides[key].title = guideData[key].guideTitle;
+        guides[key].urlContains = guideData[key].guideUrlContains;
+        guides[key].urlNotContains = guideData[key].guideUrlNotContains;
+        guides[key].menuOrder = guideData[key].guideMenuOrder;
+        guides[key].goals = guideData[key].guideGoals;
+        guides[key].steps = guideData[key].guideSteps;
+    }
+    return guides;
+}
+
 function Guide() {
-  this.id;
-  this.title;
-  this.urlContains; // Only display this guide if the page URL contains string, '*' == no filter
-  this.urlNotContains; // Display this guide if the url does NOT contain string, '*' == no filter
-  this.menuOrder; // Order in the menu
-  this.goals = [];
-  this.steps = [];
-  this.playedSteps = [];
-  this.completedGoals = [];
+    this.id;
+    this.title;
+    this.urlContains; // Only display this guide if the page URL contains string, '*' == no filter
+    this.urlNotContains; // Display this guide if the url does NOT contain string, '*' == no filter
+    this.menuOrder; // Order in the menu
+    this.goals = [];
+    this.steps = [];
+    this.buttons = [];
+    this.playedSteps = [];
+    this.completedGoals = [];
+    this.errors = [];
 }
 
 Guide.prototype = { // Player methods
     constructor: Guide,
-    playedStep: function(stepId) {
-        this.playedSteps.push(stepPlayOrder);
+    stepToPlay: function () {
+        let stepToPlay;
+        if (this.playedSteps.length > 0) {
+            stepToPlay = this.playedSteps[this.playedSteps.length - 1];
+        } else {
+            stepToPlay = 0;
+        }
+        return stepToPlay;
+    }
+    playedStep: function (stepId) {
+        this.playedSteps.push(stepId);
     },
-    goalCompleted: function(goalId) {
-        this.points.push(pointsAddition);
+    goalCompleted: function (goalId) {
+        this.completedGoals.push(goalId);
     },
-    getGoals: function() {
-        let allGoals;
-        if ( this.goals.length > 0 ) {
-            allGoals = this.goals;
-        } 
-        else {
-            console.info("No goals configured for guide ID: " + this.id);
+    getGoals: function () {
+        if (this.goals.length > 0) {
+            return this.goals;
+        } else {
+            console.info("No goals configured for guide ID: " + this.id); // not really an error, just info level, could implement info-level in errors datastructure but this is just for debugging. 
             return false;
         }
-        return allGoals;
     },
-    getSteps: function() {
-        let totalSteps;
-        if ( this.steps.length > 0 ) {
-            totalSteps = this.steps;
-        } 
-        else {
-            console.info("No steps configured for guide ID: " + this.id);
+    getSteps: function () {
+        if (this.steps.length > 0) {
+            return this.steps;
+        } else {
+            this.errors.push("getSteps: No steps configured"); // This should be a show stopper
             return false;
         }
-        return totalSteps;
     },
-    getGoal: function() {
-        
-        return this.time;
+    getButtons: function () {
+        if ( this.buttons.length > 0 ) {
+            return this.buttons;
+        }
+        else {
+            for ( let button of this.steps[this.stepToPlay].guideStep.stepButtons ) {
+                this.buttons.push(button);
+            }
+        }
+        return this.buttons;
+    }
+    getGoal: function (goalId) {
+        if (this.goals.length > 0) {
+            for (let key in this.goals) {
+                if (this.goals[key].guideGoal.goalId == goalId) {
+                    return this.goals[key].guideGoal;
+                } else {
+                    this.errors.push("getGoal: Invalid goalId: " + goalId);
+                }
+            }
+        }
+        console.info("No goals configured for guide ID: " + this.id);
+        return false;
     },
-    getStep: function() {
-        return this.playerRatio;
+    getStep: function (stepId) {
+        if (this.steps.length > 0) {
+            for (let key in this.steps) {
+                if (this.steps[key].guideStep.stepId == stepId) {
+                    return this.step[key].guideStep;
+                } else {
+                    this.errors.push("getStep: Invalid stepId: " + goalId);
+                }
+            }
+        }
+        this.errors.push("getStep: No Steps configured");
+        return false;
     },
+    error: function(err) {
+      this.errors.push(err);
+      return true;
+    },
+    getErrors: function () {
+        return this.errors;
+    }
 };
 
 function buildMenuButton() {
@@ -355,12 +412,12 @@ function buildMenu(GuideObj) {
         $('#gbclient').append(menuHtml);
     }
     for (let key in guideData) {
-        if (guideData[key].guideUrlContains == '*' || window.location.href.indexOf(guideData[key].guideUrlContains) > -1 ) {
-            if ( guideData[key].guideUrlNotContains == '*' || window.location.href.indexOf(guideData[key].guideUrlNotContains) == -1 ) {
+        if (guideData[key].guideUrlContains == '*' || window.location.href.indexOf(guideData[key].guideUrlContains) > -1) {
+            if (guideData[key].guideUrlNotContains == '*' || window.location.href.indexOf(guideData[key].guideUrlNotContains) == -1) {
                 if ($('guide-id-' + guideData[key].guideId).length == 0) {
                     let elementId = '#guide-id-' + guideData[key].guideId;
                     $('#gh-menu-list').append('<li menu-order="' + guideData[key].guideMenuOrder + '" id="guide-id-' + guideData[key].guideId + '" class="gh-menu-item">' + guideData[key].guideTitle + '</li>');
-                    $(elementId).on('click', function() {
+                    $(elementId).on('click', function () {
                         $('#gh-menu').hide();
                         $('#guide-me').removeClass('disabled processing');
                         console.info("Play guide: " + guideData[key].guideTitle);
@@ -377,16 +434,13 @@ function playGuide(guideId) {
     let existing_cookie = getCookie('gh-guide-' + guideId);
     if (existing_cookie) {
         console.info('resume guide');
-    }
-    else {
+    } else {
         console.info('play guide');
     }
     return guide;
 }
 
-function Player(guide) {
-    
-}
+function Player(guide) {}
 
 function getCookie(cookieName) {
     if (!navigator.cookieEnabled) {
@@ -441,41 +495,52 @@ function expireCookie(cookieName) {
     return true;
 }
 
-function popupBox(guideId, stepOrder, stepTitle, stepMsg, stepSelector, stepAction, stepDirection, stepButtons, stepDismissable) {
-    if (guideId == undefined || stepMsg == undefined) {
-        console.info('id and msg are required parameters');
-        return false;
-    }
-    if ( stepButtons == undefined ) {
-        $(document).on('change', stepSelector, function() {
-           playNextStep(guideId, stepPlayOrder); 
+function popupBox(guide) {
+    let buttons = guide.getButtons;
+    let buttonHTML = [];
+    if (buttons == 0) {
+        $(document).on('change', stepSelector, function () {
+            playNextStep(guideId, stepPlayOrder);
         });
+    } 
+    else {
+        for (let button of buttons ) {
+            if ( button.stepButton.buttonType == 'playNextStep' ) {
+                buttonHTML.push('<button id="play-next-step" class="gh-button">' + button.stepButton.buttonText + '</button>');
+            }
+            else if ( button.stepButton.buttonType == 'standard' ) {
+                let newTab = '';
+                let dismissable = '';
+                if ( button.stepButton.buttonDismisses ) {
+                    dismissable = ' dismissible';
+                }
+                if ( button.stepButton.buttonNewTab ) {
+                    newTab = 'target="blank"';
+                }
+                buttonHTML.push('<a href="' + button.stepButton.buttonHref + '" ' + newTab + ' class="gh-button' + dismissable + '">' + button.stepButton.buttonText + '</a>');
+            } else {
+                guide.error('invalid button data');
+            }
+        }    
     }
-    let box_direction;
-    
-    if ( stepDirection ) {
+    let box_direction = 'up_box'; // TODO: Need a function to determine best default placement. 
+    if (stepDirection) {
         switch (stepDirection) {
-    case up:
-        box_direction = "up_box";
-        break;
-    case down:
-        box_direction = "down_box";
-        break;
-    case left:
-        box_direction = "left_box";
-        break;
-    case right:
-        box_direction = "right_box";
-        break;
-} 
-else {
-    box_direction = "up_box";
-}
+        case up:
+            box_direction = "up_box";
+            break;
+        case down:
+            box_direction = "down_box";
+            break;
+        case left:
+            box_direction = "left_box";
+            break;
+        case right:
+            box_direction = "right_box";
+            break;
+        }
     }
-    const popupContent = '<div id="guide-'+ guideId +'-' + stepOrder + '" class="gh-popup '+ box_direction +'"><div class="gh-padding box-header"><div id="guide-title">' +  + '</div><div class="box-dismiss">x</div></div><div class="gh-padding guide-msg">'++'</div><div class="guide-buttons">'++'</div></div>';
-    
-    
-    const interstitial = '<div id="box-' + id + '" class="gh-center gh-box-shadow gh-border-style dismissable"><div id="header-' + id + '">Gator Helper Notice <span id="dismiss-msg">x</span></div></div>';
+    const popupContent = '<div id="guide-' + guideId + '-' + stepId + '" class="gh-popup ' + box_direction + '" style="display:block;"><div class="gh-padding box-header"><div id="guide-title">' + stepTitle + '</div><div class="box-dismiss">x</div></div><div class="gh-padding guide-msg">' + stepMsg + '</div><div class="guide-buttons">' + buttonHtml + '</div></div>';
     const ourMsg = document.getElementById('box-' + id);
     ourMsg.innerText = msg;
     modal.style.display = 'block';
@@ -487,17 +552,15 @@ else {
     }
     return true;
 }
-
 $(document).ready(function () {
     const minifiedCss = '<style>#gh-dismiss:hover,#guide-me{cursor:pointer}.gh-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}.gh-box-shadow{-webkit-box-shadow:0 0 5px 0 rgba(0,0,0,.75);-moz-box-shadow:0 0 5px 0 rgba(0,0,0,.75);box-shadow:0 0 5px 0 rgba(0,0,0,.75)}.gh-border-style{border-radius:2px;border:1px solid}.gh-box-style{padding:5px;margin:0 auto}#gh-menu,#gh-menu-list{padding:10px}.gh-menu-item:hover{cursor:pointer;font-weight:bolder}.heightlighted{border:4px solid #00ff5a}.container:after,.container:before{content:\'\';display:block;position:absolute;left:100%;width:0;height:0;border-style:solid}.container:after{top:10px;border-color:transparent transparent transparent #fdd;border-width:10px}.container:before{top:9px;border-color:transparent transparent transparent #a00;border-width:11px}.gh-dismiss{position:absolute;right:1px;top:1px;float:right;font-size:2.4rem;font-weight:700;line-height:1;color:#000;text-shadow:0 .1rem 0 #fff;opacity:.5}#gh-menu-header{display:block;width:100%;padding:0;font-size:1.6rem;font-weight:900;color:#666;border:0;text-align:center;border-bottom:1px solid #666}#gh-menu{width:400px;min-height:300px;background:#FFF;color:#4077b5}#guide-me{min-width:10rem;background-color:#4077b5;box-sizing:inherit;display:inline-block;min-height:2.4rem;padding:.3rem 1.3rem;font-family:400 1.3rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";font-weight:500;line-height:2.4rem;vertical-align:middle;border:.1rem solid transparent;border-radius:.2rem;outline:0;-o-transition:all .1s ease;transition:all .1s ease;position:relative;z-index:0;overflow:hidden;font-size:1.2rem;color:#fff;text-align:center;text-decoration:none;-moz-user-select:none;-ms-user-select:none;user-select:none;height:100%}#guide-me:hover{background-color:#3a679d}</style>';
     $('#gbclient').append(minifiedCss);
     buildMenuButton();
-    
-    $('#guide-me').click(function() {
+    $('#guide-me').click(function () {
         console.info("Guide me clicked");
         $('#gh-menu').show();
     });
-    $('.gh-dismiss').click(function() {
+    $('.gh-dismiss').click(function () {
         $('#gh-menu').hide();
         $('#guide-me').removeClass('disabled processing');
     })
